@@ -61,3 +61,17 @@ button {
   font-size: 13px;
   margin-left: 10px;
 }
+
+#gh-check,
+#gemini-check {
+  margin: 8px 0 0;
+  font-size: 13px;
+}
+
+.ok {
+  color: #1f883d;
+}
+
+.error {
+  color: #cf222e;
+}
