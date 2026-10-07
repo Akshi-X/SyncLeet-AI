@@ -5,34 +5,136 @@
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
-    <h1>LeetCode AI Sync</h1>
-
-    <section>
-      <h2>Status</h2>
-      <p id="github-status" class="status">● GitHub: not configured</p>
-      <p id="gemini-status" class="status">● Gemini: not configured</p>
-    </section>
-
-    <section>
-      <h2>Last submission</h2>
-      <p id="last-submission" class="muted">None yet</p>
-    </section>
-
-    <section>
-      <h2>Analysis</h2>
-      <p id="analysis-state" class="muted">—</p>
-      <div id="analysis" hidden>
-        <p><strong>Algorithm:</strong> <span id="an-algo"></span></p>
-        <p><strong>Time:</strong> <span id="an-time"></span></p>
-        <p><strong>Space:</strong> <span id="an-space"></span></p>
-        <p><strong>Key concept:</strong> <span id="an-key"></span></p>
+    <header class="app-header">
+      <div class="brand">
+        <svg class="logo" width="30" height="30" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+          <rect width="28" height="28" rx="8" class="logo-bg" />
+          <path d="M8 14.5l4 4 8-9" class="logo-mark" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <div class="brand-text">
+          <h1>SyncLeet-AI</h1>
+          <p>Save • Learn • Grow</p>
+        </div>
       </div>
-    </section>
+      <button class="icon-btn js-settings" aria-label="Open settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </button>
+    </header>
 
-    <div class="actions">
-      <button id="open-github" disabled>View GitHub</button>
-      <button id="open-settings">Settings</button>
-    </div>
+    <main>
+      <!-- Connection status -->
+      <div class="status-card">
+        <div class="status-item" id="github-status">
+          <span class="status-head">
+            <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" />
+            </svg>
+            GitHub
+          </span>
+          <span class="status-state"><span class="dot"></span><span class="state-text">Not connected</span></span>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-item" id="gemini-status">
+          <span class="status-head">
+            <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l1.9 5.6a4 4 0 0 0 2.5 2.5L22 12l-5.6 1.9a4 4 0 0 0-2.5 2.5L12 22l-1.9-5.6a4 4 0 0 0-2.5-2.5L2 12l5.6-1.9a4 4 0 0 0 2.5-2.5L12 2z" />
+            </svg>
+            Gemini
+          </span>
+          <span class="status-state"><span class="dot"></span><span class="state-text">Not configured</span></span>
+        </div>
+      </div>
+
+      <!-- Latest submission -->
+      <section class="card submission-card" id="submission-card" role="button" tabindex="0" aria-label="Open latest submission on GitHub">
+        <h2 class="label">Latest Submission</h2>
+        <div id="last-submission" class="empty">No submissions yet</div>
+      </section>
+
+      <!-- Analysis -->
+      <section class="card analysis-card">
+        <div class="analysis-head">
+          <h2 class="label label-icon">
+            <svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.2 1 2V17h6v-.3c0-.8.4-1.5 1-2A7 7 0 0 0 12 2z" />
+            </svg>
+            Analysis
+          </h2>
+          <span id="analysis-state" class="status-badge" hidden></span>
+        </div>
+        <p id="analysis-error" class="analysis-error" hidden></p>
+
+        <div id="analysis" hidden>
+          <div class="complexity">
+            <div class="cx cx-algo">
+              <span class="cx-label">Algorithm</span>
+              <span class="cx-value" id="an-algo"></span>
+            </div>
+            <div class="cx">
+              <span class="cx-label">Time</span>
+              <span class="cx-value mono" id="an-time"></span>
+            </div>
+            <div class="cx">
+              <span class="cx-label">Space</span>
+              <span class="cx-value mono" id="an-space"></span>
+            </div>
+          </div>
+
+          <div class="keyconcept">
+            <span class="cx-label">Key Concept</span>
+            <span id="an-key" class="kc-value"></span>
+          </div>
+
+          <button type="button" class="explain-trigger" id="explain-open" aria-haspopup="dialog">
+            <span class="et-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+              View full explanation
+            </span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button id="open-github" class="btn btn-outline" disabled>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.83.09-.65.35-1.08.63-1.33-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z" />
+          </svg>
+          View on GitHub
+        </button>
+        <button class="btn btn-primary js-settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+          Settings
+        </button>
+      </div>
+    </main>
+
+    <!-- Slide-in explanation panel -->
+    <aside class="sheet" id="explain-sheet" role="dialog" aria-modal="true" aria-label="Explanation" aria-hidden="true">
+      <header class="sheet-head">
+        <button class="icon-btn" id="explain-close" aria-label="Back">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+        </button>
+        <h2>Explanation</h2>
+      </header>
+      <div class="sheet-body">
+        <div class="ex-block"><h3>Algorithm</h3><p id="sx-algo"></p></div>
+        <div class="ex-block"><h3>How it works</h3><p id="sx-explanation"></p></div>
+        <div class="ex-block"><h3>Step by step</h3><ol id="sx-steps"></ol></div>
+        <div class="ex-block"><h3>Time complexity</h3><p id="sx-time"></p></div>
+        <div class="ex-block"><h3>Space complexity</h3><p id="sx-space"></p></div>
+        <div class="ex-block"><h3>Key concept</h3><p id="sx-key"></p></div>
+      </div>
+    </aside>
 
     <script src="popup.js"></script>
   </body>

@@ -29,7 +29,21 @@ function load() {
     for (const [key, id] of Object.entries(secretFields)) {
       if (data[key]) document.getElementById(id).placeholder = SECRET_PLACEHOLDER;
     }
+    updateBadges(data);
   });
+}
+
+// Header pills reflect the real stored config (not a live connection test).
+function updateBadges(d) {
+  setBadge("gh-badge", !!(d.gh_username && d.gh_repo && d.gh_token), "Connected", "Not connected");
+  setBadge("gemini-badge", !!d.gemini_key, "Configured", "Not configured");
+}
+
+function setBadge(id, ok, okText, offText) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle("ok", ok);
+  el.querySelector(".pill-text").textContent = ok ? okText : offText;
 }
 
 function save(event) {
@@ -62,10 +76,12 @@ function save(event) {
 function setCheck(id, text) {
   const el = document.getElementById(id);
   el.textContent = text;
-  el.className = text.startsWith("✓") ? "ok" : "error";
+  const tone = text.startsWith("✓") ? "ok" : text.startsWith("✗") ? "error" : "";
+  el.className = `check ${tone}`.trim();
 }
 
 async function validateAll(d) {
+  updateBadges(d); // refresh pills to match what was just saved
   setCheck("gh-check", "Checking…");
   setCheck("gemini-check", "Checking…");
   setCheck("gh-check", await validateGitHub(d));
@@ -106,3 +122,4 @@ async function validateGemini(d) {
 
 document.addEventListener("DOMContentLoaded", load);
 document.getElementById("settings-form").addEventListener("submit", save);
+document.getElementById("back-btn").addEventListener("click", () => window.close());

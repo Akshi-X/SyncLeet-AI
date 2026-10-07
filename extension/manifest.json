@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "LeetCode AI Sync",
+  "name": "SyncLeet-AI",
   "version": "0.1.0",
   "description": "Saves your accepted LeetCode solutions to GitHub with AI-generated explanations of your own code.",
   "permissions": ["storage"],
