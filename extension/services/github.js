@@ -3,7 +3,7 @@
 // and skips a no-op when the submitted code is unchanged (spec section 9).
 
 import { folderPath, solutionFileName } from "../utils/parser.js";
-import { buildExplanationMd, buildQuestionMd } from "../utils/markdown.js";
+import { buildExplanationMd, buildQuestionMd, parseReadmeRows, buildReadme } from "../utils/markdown.js";
 
 const API = "https://api.github.com";
 
@@ -27,6 +27,7 @@ export async function commitSolution(cfg, submission, explanation) {
   if (submission.statement) {
     files.push({ path: `${folder}/question.md`, content: buildQuestionMd(submission) });
   }
+  files.push({ path: "README.md", content: await updatedReadme(cfg, branch, submission, explanation, folder) });
 
   const message = `${isUpdate ? "Update" : "Solve"} #${submission.number} - ${submission.title}`;
   await commitFiles(cfg, branch, message, files);
@@ -60,6 +61,24 @@ async function commitFiles(cfg, branch, message, files) {
     parents: [base.commitSha],
   });
   await ghJson(cfg, "PATCH", `/git/refs/heads/${branch}`, { sha: newCommit.sha });
+}
+
+async function updatedReadme(cfg, branch, submission, explanation, folder) {
+  const existing = await getFile(cfg, "README.md", branch);
+  const rows = parseReadmeRows(existing?.content || "");
+  const esc = (x) => String(x ?? "").replace(/\|/g, "\\|"); // keep pipes out of table cells
+  const row = [
+    String(submission.number),
+    `[${esc(submission.title)}](${folder}/)`,
+    esc(submission.difficulty),
+    esc(submission.language),
+    esc(explanation.time_complexity),
+    esc(explanation.space_complexity),
+  ];
+  const key = (c) => `${c[0]}|${c[3].toLowerCase()}`; // identity: number + language
+  const next = rows.filter((c) => key(c) !== key(row));
+  next.push(row);
+  return buildReadme(next);
 }
 
 async function initRepo(cfg, branch) {
