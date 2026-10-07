@@ -8,6 +8,11 @@ function escapeHtml(s) {
 }
 
 function render(data) {
+  const ghButton = document.getElementById("open-github");
+  const ghUrl = data.github_url;
+  ghButton.disabled = !ghUrl;
+  ghButton.onclick = ghUrl ? () => chrome.tabs.create({ url: ghUrl }) : null;
+
   const ghConfigured = !!(data.gh_username && data.gh_repo && data.gh_token);
   const geminiConfigured = !!data.gemini_key;
   document.getElementById("github-status").textContent =
@@ -34,7 +39,14 @@ const STATE_LABEL = {
   accepted: "Accepted — waiting",
   analyzing: "Analyzing with Gemini…",
   analysis_complete: "Analysis complete",
+  uploading: "Committing to GitHub…",
 };
+
+function completedLabel(result) {
+  if (result?.skipped) return "Already up to date (unchanged)";
+  if (result?.updated) return "Updated on GitHub ✓";
+  return "Committed to GitHub ✓";
+}
 
 function renderAnalysis(state, explanation) {
   const stateEl = document.getElementById("analysis-state");
@@ -43,6 +55,9 @@ function renderAnalysis(state, explanation) {
   if (state?.status === "failed") {
     stateEl.textContent = state.error || "Failed.";
     stateEl.className = "error";
+  } else if (state?.status === "completed") {
+    stateEl.textContent = completedLabel(state.result);
+    stateEl.className = "muted";
   } else {
     stateEl.textContent = state ? STATE_LABEL[state.status] || "—" : "—";
     stateEl.className = "muted";
