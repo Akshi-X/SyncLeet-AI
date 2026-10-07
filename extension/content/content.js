@@ -1,5 +1,39 @@
-// Content script, runs on leetcode.com. Phase 1: skeleton only.
-// Phase 2 adds submission detection and problem/code extraction here
-// (delegated to leetcode/ modules so DOM selectors stay isolated).
+// Content script orchestrator. Phase 2: on an Accepted submission, pull the
+// code + metadata and hand the result to the background worker. No Gemini/
+// GitHub yet — that starts in Phase 3.
 
-console.log("[LeetCode AI Sync] content script loaded on", location.href);
+(function () {
+  const { SubmissionDetector, ProblemParser, CodeExtractor } = window.LCAIS;
+
+  console.log("[LeetCode AI Sync] content script loaded on", location.href);
+
+  SubmissionDetector.onAccepted(async (submissionId) => {
+    try {
+      const details = await CodeExtractor.fetchSubmission(submissionId);
+      if (!details) {
+        console.warn("[LeetCode AI Sync] no submission details for", submissionId);
+        return;
+      }
+      const meta = ProblemParser.parse(details.question);
+      const code = CodeExtractor.extract(details);
+      const submission = {
+        submissionId,
+        number: meta?.number,
+        title: meta?.title,
+        slug: meta?.slug,
+        url: meta?.url,
+        difficulty: meta?.difficulty,
+        language: code.language,
+        langSlug: code.langSlug,
+        extension: code.extension,
+        code: code.code,
+        status: "accepted",
+        detectedAt: Date.now(),
+      };
+      chrome.runtime.sendMessage({ type: "SUBMISSION_ACCEPTED", submission });
+      console.log("[LeetCode AI Sync] extracted #" + submission.number, submission.title);
+    } catch (e) {
+      console.error("[LeetCode AI Sync] extraction failed:", e);
+    }
+  });
+})();

@@ -16,7 +16,12 @@
   "content_scripts": [
     {
       "matches": ["https://leetcode.com/*"],
-      "js": ["content/content.js"],
+      "js": [
+        "leetcode/submissionDetector.js",
+        "leetcode/problemParser.js",
+        "leetcode/codeExtractor.js",
+        "content/content.js"
+      ],
       "run_at": "document_idle"
     }
   ]
