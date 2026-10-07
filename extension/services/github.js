@@ -3,7 +3,7 @@
 // and skips a no-op when the submitted code is unchanged (spec section 9).
 
 import { folderPath, solutionFileName } from "../utils/parser.js";
-import { buildExplanationMd } from "../utils/markdown.js";
+import { buildExplanationMd, buildQuestionMd } from "../utils/markdown.js";
 
 const API = "https://api.github.com";
 
@@ -20,11 +20,16 @@ export async function commitSolution(cfg, submission, explanation) {
     return { skipped: true, folder, branch }; // identical code — don't spam commits
   }
 
-  const message = `${isUpdate ? "Update" : "Solve"} #${submission.number} - ${submission.title}`;
-  await commitFiles(cfg, branch, message, [
+  const files = [
     { path: solutionPath, content: submission.code },
     { path: mdPath, content: md },
-  ]);
+  ];
+  if (submission.statement) {
+    files.push({ path: `${folder}/question.md`, content: buildQuestionMd(submission) });
+  }
+
+  const message = `${isUpdate ? "Update" : "Solve"} #${submission.number} - ${submission.title}`;
+  await commitFiles(cfg, branch, message, files);
 
   return {
     skipped: false,

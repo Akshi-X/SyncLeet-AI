@@ -32,23 +32,31 @@ window.LCAIS.CodeExtractor = (function () {
     return m ? m[1] : "";
   }
 
-  async function fetchSubmission(submissionId) {
+  const CONTENT_QUERY = `query questionContent($titleSlug: String!) {
+    question(titleSlug: $titleSlug) { content }
+  }`;
+
+  async function graphql(operationName, query, variables) {
     const res = await fetch("https://leetcode.com/graphql/", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-csrftoken": csrfToken(),
-      },
+      headers: { "Content-Type": "application/json", "x-csrftoken": csrfToken() },
       credentials: "include",
-      body: JSON.stringify({
-        operationName: "submissionDetails",
-        query: QUERY,
-        variables: { submissionId: Number(submissionId) },
-      }),
+      body: JSON.stringify({ operationName, query, variables }),
     });
     if (!res.ok) throw new Error("GraphQL HTTP " + res.status);
     const json = await res.json();
-    return json?.data?.submissionDetails || null;
+    return json?.data || null;
+  }
+
+  async function fetchSubmission(submissionId) {
+    const data = await graphql("submissionDetails", QUERY, { submissionId: Number(submissionId) });
+    return data?.submissionDetails || null;
+  }
+
+  // Problem statement (HTML). Public problems only; premium-locked ones return null.
+  async function fetchQuestionContent(titleSlug) {
+    const data = await graphql("questionContent", CONTENT_QUERY, { titleSlug });
+    return data?.question?.content || "";
   }
 
   function extract(details) {
@@ -61,5 +69,5 @@ window.LCAIS.CodeExtractor = (function () {
     };
   }
 
-  return { fetchSubmission, extract };
+  return { fetchSubmission, fetchQuestionContent, extract };
 })();

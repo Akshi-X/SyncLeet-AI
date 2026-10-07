@@ -19,6 +19,15 @@
       }
       const meta = ProblemParser.parse(details.question);
       const code = CodeExtractor.extract(details);
+
+      // Problem statement is a nice-to-have — don't let a failure block the commit.
+      let statement = "";
+      try {
+        statement = await CodeExtractor.fetchQuestionContent(meta?.slug);
+      } catch (e) {
+        console.warn("[LeetCode AI Sync] could not fetch problem statement:", e);
+      }
+
       const submission = {
         submissionId,
         number: meta?.number,
@@ -26,6 +35,7 @@
         slug: meta?.slug,
         url: meta?.url,
         difficulty: meta?.difficulty,
+        statement, // problem statement HTML (may be "")
         language: code.language,
         langSlug: code.langSlug,
         extension: code.extension,
