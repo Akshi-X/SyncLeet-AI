@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode AI Sync",
+  "version": "0.1.0",
+  "description": "Saves your accepted LeetCode solutions to GitHub with AI-generated explanations of your own code.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://leetcode.com/*"],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "LeetCode AI Sync"
+  },
+  "options_page": "options/options.html",
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

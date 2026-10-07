@@ -1,0 +1,51 @@
+body {
+  font-family: system-ui, sans-serif;
+  width: 260px;
+  margin: 0;
+  padding: 12px 14px;
+  color: #1f2328;
+}
+
+h1 {
+  font-size: 15px;
+  margin: 0 0 10px;
+}
+
+h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #656d76;
+  margin: 12px 0 4px;
+}
+
+.status {
+  margin: 2px 0;
+  font-size: 13px;
+}
+
+.muted {
+  color: #656d76;
+  font-size: 13px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+button {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #f6f8fa;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

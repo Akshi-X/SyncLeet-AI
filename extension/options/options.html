@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LeetCode AI Sync — Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <h1>LeetCode AI Sync — Settings</h1>
+
+    <form id="settings-form">
+      <fieldset>
+        <legend>GitHub</legend>
+        <label>Username <input type="text" id="gh-username" autocomplete="off" /></label>
+        <label>Repository <input type="text" id="gh-repo" placeholder="leetcode-solutions" autocomplete="off" /></label>
+        <label>Token <input type="password" id="gh-token" autocomplete="off" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Gemini</legend>
+        <label>API key <input type="password" id="gemini-key" autocomplete="off" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Preferences</legend>
+        <label class="inline"><input type="checkbox" id="pref-analyze" checked /> Automatically analyze accepted submissions</label>
+        <label class="inline"><input type="checkbox" id="pref-commit" checked /> Automatically commit to GitHub</label>
+      </fieldset>
+
+      <button type="submit">Save</button>
+      <span id="save-status" class="muted"></span>
+    </form>
+
+    <script src="options.js"></script>
+  </body>
+</html>
