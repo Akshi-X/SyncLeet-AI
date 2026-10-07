@@ -14,9 +14,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return;
   }
   if (message?.type === "SUBMISSION_ACCEPTED") {
-    handleAccepted(message.submission); // async, fire-and-forget; popup follows via storage
-    sendResponse({ ok: true });
-    return;
+    // Keep the message channel open until the whole chain finishes — this keeps
+    // the MV3 worker alive so it isn't killed mid-Gemini/GitHub request.
+    handleAccepted(message.submission).finally(() => sendResponse({ ok: true }));
+    return true;
   }
   return true;
 });

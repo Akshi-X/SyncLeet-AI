@@ -8,6 +8,9 @@
   console.log("[LeetCode AI Sync] content script loaded on", location.href);
 
   SubmissionDetector.onAccepted(async (submissionId) => {
+    // If the extension was reloaded, this old content script is orphaned —
+    // chrome.runtime is gone. Bail quietly; a page refresh reattaches a fresh one.
+    if (!chrome.runtime?.id) return;
     try {
       const details = await CodeExtractor.fetchSubmission(submissionId);
       if (!details) {

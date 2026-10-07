@@ -39,21 +39,31 @@ export async function commitSolution(cfg, submission, explanation) {
 // --- Git Data API plumbing ---
 
 async function commitFiles(cfg, branch, message, files) {
-  const base = await getRef(cfg, branch); // null for an empty repo
-  const tree = files.map((f) => ({ path: f.path, mode: "100644", type: "blob", content: f.content }));
+  let base = await getRef(cfg, branch);
+  if (!base) {
+    // Empty repo: the Git Data API can't build a tree with no base commit.
+    // Bootstrap one via the Contents API (works on empty repos), then proceed.
+    await initRepo(cfg, branch);
+    base = await getRef(cfg, branch);
+  }
 
-  const newTree = await ghJson(cfg, "POST", `/git/trees`, base ? { base_tree: base.treeSha, tree } : { tree });
+  const tree = files.map((f) => ({ path: f.path, mode: "100644", type: "blob", content: f.content }));
+  const newTree = await ghJson(cfg, "POST", `/git/trees`, { base_tree: base.treeSha, tree });
   const newCommit = await ghJson(cfg, "POST", `/git/commits`, {
     message,
     tree: newTree.sha,
-    parents: base ? [base.commitSha] : [],
+    parents: [base.commitSha],
   });
+  await ghJson(cfg, "PATCH", `/git/refs/heads/${branch}`, { sha: newCommit.sha });
+}
 
-  if (base) {
-    await ghJson(cfg, "PATCH", `/git/refs/heads/${branch}`, { sha: newCommit.sha });
-  } else {
-    await ghJson(cfg, "POST", `/git/refs`, { ref: `refs/heads/${branch}`, sha: newCommit.sha });
-  }
+async function initRepo(cfg, branch) {
+  const readme = "# LeetCode Solutions\n\nMy LeetCode solutions with AI-generated explanations of my own implementations.\n";
+  await ghJson(cfg, "PUT", "/contents/README.md", {
+    message: "Initialize repository",
+    content: toBase64(readme),
+    branch,
+  });
 }
 
 async function getDefaultBranch(cfg) {
@@ -105,4 +115,11 @@ async function ghError(res) {
 function fromBase64(b64) {
   const bin = atob(String(b64).replace(/\n/g, ""));
   return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+}
+
+function toBase64(str) {
+  const bytes = new TextEncoder().encode(str); // UTF-8 safe, unlike raw btoa
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
 }

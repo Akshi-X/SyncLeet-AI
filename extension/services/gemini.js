@@ -4,7 +4,7 @@
 
 import { buildPrompt, RESPONSE_SCHEMA } from "../prompts/explanation-prompt.js";
 
-const MODEL = "gemini-2.0-flash"; // change here if you want a different model
+const MODEL = "gemini-flash-lite-latest"; // change here if you want a different model
 const endpoint = (key) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(key)}`;
 
@@ -24,27 +24,40 @@ export async function analyze(submission, apiKey) {
   throw new Error("Gemini returned an invalid explanation format.");
 }
 
+const TRANSIENT = new Set([429, 500, 502, 503, 504]); // overloaded / rate-limited — worth retrying
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 async function callGemini(submission, apiKey) {
-  const res = await fetch(endpoint(apiKey), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: buildPrompt(submission) }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: RESPONSE_SCHEMA,
-        temperature: 0.2,
-      },
-    }),
+  const body = JSON.stringify({
+    contents: [{ parts: [{ text: buildPrompt(submission) }] }],
+    generationConfig: {
+      responseMimeType: "application/json",
+      responseSchema: RESPONSE_SCHEMA,
+      temperature: 0.2,
+    },
   });
-  if (!res.ok) {
-    const body = await res.text().catch(() => "");
-    throw new Error(`Gemini request failed (HTTP ${res.status}). ${body.slice(0, 200)}`);
+
+  const MAX = 5;
+  for (let attempt = 1; attempt <= MAX; attempt++) {
+    const res = await fetch(endpoint(apiKey), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error("Gemini returned an empty response.");
+      return text;
+    }
+    if (TRANSIENT.has(res.status) && attempt < MAX) {
+      console.warn(`[LeetCode AI Sync] Gemini ${res.status}, retrying (${attempt}/${MAX - 1})…`);
+      await sleep(1000 * 2 ** (attempt - 1)); // 1s, 2s, 4s, 8s
+      continue;
+    }
+    const detail = await res.text().catch(() => "");
+    throw new Error(`Gemini request failed (HTTP ${res.status}). ${detail.slice(0, 200)}`);
   }
-  const data = await res.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("Gemini returned an empty response.");
-  return text;
 }
 
 function validate(o) {
