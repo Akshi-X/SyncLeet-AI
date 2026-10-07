@@ -26,6 +26,37 @@ function render(data) {
     box.classList.add("muted");
     box.textContent = "None yet";
   }
+
+  renderAnalysis(data.workflow_state, data.last_explanation);
+}
+
+const STATE_LABEL = {
+  accepted: "Accepted — waiting",
+  analyzing: "Analyzing with Gemini…",
+  analysis_complete: "Analysis complete",
+};
+
+function renderAnalysis(state, explanation) {
+  const stateEl = document.getElementById("analysis-state");
+  const block = document.getElementById("analysis");
+
+  if (state?.status === "failed") {
+    stateEl.textContent = state.error || "Failed.";
+    stateEl.className = "error";
+  } else {
+    stateEl.textContent = state ? STATE_LABEL[state.status] || "—" : "—";
+    stateEl.className = "muted";
+  }
+
+  if (explanation) {
+    block.hidden = false;
+    document.getElementById("an-algo").textContent = explanation.algorithm;
+    document.getElementById("an-time").textContent = explanation.time_complexity;
+    document.getElementById("an-space").textContent = explanation.space_complexity;
+    document.getElementById("an-key").textContent = explanation.key_concept;
+  } else {
+    block.hidden = true;
+  }
 }
 
 document.getElementById("open-settings").addEventListener("click", () => {

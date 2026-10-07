@@ -4,14 +4,18 @@
   "version": "0.1.0",
   "description": "Saves your accepted LeetCode solutions to GitHub with AI-generated explanations of your own code.",
   "permissions": ["storage"],
-  "host_permissions": ["https://leetcode.com/*"],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://generativelanguage.googleapis.com/*"
+  ],
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "LeetCode AI Sync"
   },
   "options_page": "options/options.html",
   "background": {
-    "service_worker": "background/background.js"
+    "service_worker": "background/background.js",
+    "type": "module"
   },
   "content_scripts": [
     {
